@@ -26,26 +26,26 @@ export function ServiceCatalog({ onSelect }: { onSelect?: (service: Service) => 
   const [services, setServices] = useState<Service[]>([]);
   const [filter, setFilter] = useState("todos");
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    serviceService.list(page).then((response) => {
+    serviceService.listAll().then((response) => {
       if (!active) return;
-      setServices(response.data);
-      setTotalPages(response.pagination.totalPages);
+      setServices(response);
       setError("");
     }).catch((reason: unknown) => {
       if (!active) return;
       setError(reason instanceof ApiError ? reason.message : "No se pudo cargar el catálogo.");
     }).finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [page]);
+  }, []);
 
   const visibleServices = useMemo(() => services.filter((service) => filter === "todos" || (filter === "desarrollo-web" ? categoryName(service.category) === "Desarrollo web" : categoryName(service.category) === "Soporte tecnológico")), [filter, services]);
+  const totalPages = Math.max(1, Math.ceil(visibleServices.length / 6));
+  const paginatedServices = visibleServices.slice((page - 1) * 6, page * 6);
 
   function selectService(service: Service) {
     onSelect?.(service);
@@ -55,7 +55,7 @@ export function ServiceCatalog({ onSelect }: { onSelect?: (service: Service) => 
   return (
     <>
       <div className="service-filters">
-        {[["todos", "Todos"], ["desarrollo-web", "Desarrollo web"], ["soporte", "Soporte tecnológico"]].map(([value, label]) => <button key={value} type="button" className={`filter-button${filter === value ? " active" : ""}`} onClick={() => setFilter(value)}>{label}</button>)}
+        {[["todos", "Todos"], ["desarrollo-web", "Desarrollo web"], ["soporte", "Soporte tecnológico"]].map(([value, label]) => <button key={value} type="button" className={`filter-button${filter === value ? " active" : ""}`} onClick={() => { setFilter(value); setPage(1); }}>{label}</button>)}
       </div>
       {loading && <LoadingState label="Cargando servicios..." />}
       {!loading && error && <ErrorState message={error} />}
@@ -63,7 +63,7 @@ export function ServiceCatalog({ onSelect }: { onSelect?: (service: Service) => 
       {!loading && !error && visibleServices.length > 0 && (
         <>
           <div id="services-container">
-            {visibleServices.map((service) => <article key={service.id} className="service-card" tabIndex={0} role="button" aria-label={`Solicitar ${service.name}`} onClick={() => selectService(service)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectService(service); } }}>
+            {paginatedServices.map((service) => <article key={service.id} className="service-card" tabIndex={0} role="button" aria-label={`Solicitar ${service.name}`} onClick={() => selectService(service)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectService(service); } }}>
               <img className="service-card-image" src={imageByService[service.name] ?? "/assets/images/general/desktop.png"} alt={service.name} />
               <div className="service-card-content">
                 <span className="service-card-category">{categoryName(service.category)}</span>
