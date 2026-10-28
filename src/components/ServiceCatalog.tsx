@@ -1,13 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Service } from "@/domain/types";
 import { serviceService } from "@/services/service-service";
 import { ApiError } from "@/services/http-client";
 import { ErrorState, LoadingState } from "./LoadingState";
 
+const imageByService: Record<string, string> = {
+  "Página web para negocio": "/assets/images/services/pagina-web.jpg",
+  "Landing page": "/assets/images/services/landing-page.jpg",
+  "Portafolio digital": "/assets/images/services/portafolio.jpg",
+  "Aplicación web": "/assets/images/services/aplicacion-web.jpg",
+  "Mantenimiento de PC": "/assets/images/services/mantenimiento-pc.jpg",
+  "Mantenimiento de laptop": "/assets/images/services/mantenimiento-laptop.jpg",
+  "Mantenimiento de consola": "/assets/images/services/mantenimiento-consola.jpg",
+  "Cambio de pasta térmica": "/assets/images/services/pasta-termica.jpg",
+  "Optimización de equipos": "/assets/images/services/optimizacion.jpg",
+};
+
+function categoryName(category: string) {
+  return category.toLowerCase().includes("desarrollo") ? "Desarrollo web" : "Soporte tecnológico";
+}
+
 export function ServiceCatalog({ onSelect }: { onSelect?: (service: Service) => void }) {
   const [services, setServices] = useState<Service[]>([]);
+  const [filter, setFilter] = useState("todos");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -28,33 +45,37 @@ export function ServiceCatalog({ onSelect }: { onSelect?: (service: Service) => 
     return () => { active = false; };
   }, [page]);
 
+  const visibleServices = useMemo(() => services.filter((service) => filter === "todos" || (filter === "desarrollo-web" ? categoryName(service.category) === "Desarrollo web" : categoryName(service.category) === "Soporte tecnológico")), [filter, services]);
+
+  function selectService(service: Service) {
+    onSelect?.(service);
+    document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
+  }
+
   return (
-    <div>
+    <>
+      <div className="service-filters">
+        {[["todos", "Todos"], ["desarrollo-web", "Desarrollo web"], ["soporte", "Soporte tecnológico"]].map(([value, label]) => <button key={value} type="button" className={`filter-button${filter === value ? " active" : ""}`} onClick={() => setFilter(value)}>{label}</button>)}
+      </div>
       {loading && <LoadingState label="Cargando servicios..." />}
       {!loading && error && <ErrorState message={error} />}
-      {!loading && !error && services.length === 0 && <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">Aún no hay servicios disponibles.</p>}
-      {!loading && !error && services.length > 0 && (
+      {!loading && !error && visibleServices.length === 0 && <p className="empty-state">Aún no hay servicios disponibles.</p>}
+      {!loading && !error && visibleServices.length > 0 && (
         <>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
-              <article key={service.id} className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-[#0d0d0f]">
-                <div className="h-2 bg-gradient-to-r from-accent-dark to-accent" />
-                <div className="flex flex-1 flex-col p-6">
-                <span className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-accent-dark">{service.category}</span>
-                <h3 className="text-xl font-bold text-ink">{service.name}</h3>
-                <p className="mt-3 flex-1 leading-7 text-slate-600">{service.description}</p>
-                {onSelect && <button onClick={() => onSelect(service)} className="mt-6 self-start font-semibold text-accent-dark hover:text-ink dark:hover:text-white">Solicitar servicio →</button>}
-                </div>
-              </article>
-            ))}
+          <div id="services-container">
+            {visibleServices.map((service) => <article key={service.id} className="service-card" tabIndex={0} role="button" aria-label={`Solicitar ${service.name}`} onClick={() => selectService(service)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectService(service); } }}>
+              <img className="service-card-image" src={imageByService[service.name] ?? "/assets/images/general/desktop.png"} alt={service.name} />
+              <div className="service-card-content">
+                <span className="service-card-category">{categoryName(service.category)}</span>
+                <h3>{service.name}</h3>
+                <p>{service.description}</p>
+                <button className="service-card-button" type="button" onClick={(event) => { event.stopPropagation(); selectService(service); }}>Solicitar servicio</button>
+              </div>
+            </article>)}
           </div>
-          {totalPages > 1 && <div className="mt-8 flex items-center justify-center gap-4">
-            <button disabled={page === 1} onClick={() => setPage((current) => current - 1)} className="rounded-full border border-slate-300 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40">Anterior</button>
-            <span className="text-sm text-slate-500">Página {page} de {totalPages}</span>
-            <button disabled={page === totalPages} onClick={() => setPage((current) => current + 1)} className="rounded-full border border-slate-300 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40">Siguiente</button>
-          </div>}
+          {totalPages > 1 && <div className="pagination"><button type="button" disabled={page === 1} onClick={() => setPage((current) => current - 1)}>Anterior</button><span>Página {page} de {totalPages}</span><button type="button" disabled={page === totalPages} onClick={() => setPage((current) => current + 1)}>Siguiente</button></div>}
         </>
       )}
-    </div>
+    </>
   );
 }
