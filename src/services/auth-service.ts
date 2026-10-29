@@ -8,4 +8,21 @@ export const authService = {
   login(data: { email: string; password: string }) {
     return httpClient.request<AuthResponse>("/auth/login", { method: "POST", body: data });
   },
+  me() {
+    return httpClient.request<User>("/auth/me");
+  },
+  updateProfile(data: { name: string; email: string; phone: string | null }) {
+    return httpClient.request<User>("/auth/me", { method: "PUT", body: data });
+  },
+  changePassword(data: { currentPassword: string; newPassword: string }) {
+    return httpClient.request<null>("/auth/me/password", { method: "PUT", body: data });
+  },
+  uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.set("file", file);
+    return httpClient.requestFormData<User>("/auth/me/avatar", formData);
+  },
+  removeAvatar() {
+    return httpClient.request<User>("/auth/me/avatar", { method: "DELETE" });
+  },
 };

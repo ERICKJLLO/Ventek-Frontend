@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Navbar() {
@@ -10,6 +10,8 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showTop, setShowTop] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("ventek-theme");
@@ -37,6 +39,23 @@ export function Navbar() {
     setMenuOpen(false);
   }
 
+  useEffect(() => {
+    function closeProfile(event: MouseEvent) {
+      if (!profileRef.current?.contains(event.target as Node)) setProfileOpen(false);
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setProfileOpen(false);
+    }
+    document.addEventListener("mousedown", closeProfile);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeProfile);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  const initials = user?.name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase() ?? "";
+
   return (
     <>
       <header className={scrolled ? "scrolled" : ""}>
@@ -51,12 +70,21 @@ export function Navbar() {
             <li><Link href="/#contacto" onClick={closeMenu}>Contacto</Link></li>
             {isReady && user && <li><Link href="/interacciones" onClick={closeMenu}>Mis solicitudes</Link></li>}
             {isReady && user?.role === "admin" && <li><Link href="/admin" onClick={closeMenu}>Administración</Link></li>}
+            {isReady && !user && <li className="nav-login-mobile"><Link href="/login" className="nav-login-button" onClick={closeMenu}>Iniciar sesión</Link></li>}
           </ul>
-          {isReady && user ? (
-            <button type="button" className="nav-button" onClick={logout}>Cerrar sesión</button>
-          ) : (
-            <Link href={isReady ? "/login" : "/#contacto"} className="nav-button">Solicitar servicio</Link>
-          )}
+          <Link href="/#contacto" className="nav-button">Solicitar servicio</Link>
+          {isReady && !user && <Link href="/login" className="nav-login-button nav-login-desktop">Iniciar sesión</Link>}
+          {isReady && user && <div className="profile-menu" ref={profileRef}>
+            <button type="button" className="profile-button" aria-label="Abrir menú de perfil" aria-expanded={profileOpen} onClick={() => setProfileOpen((open) => !open)}>
+              <span>{initials}</span>
+            </button>
+            {profileOpen && <div className="profile-dropdown" role="menu">
+              <Link href="/perfil" role="menuitem" onClick={() => setProfileOpen(false)}>Mi perfil</Link>
+              <Link href="/configuracion" role="menuitem" onClick={() => setProfileOpen(false)}>Configuración</Link>
+              <Link href="/seguridad" role="menuitem" onClick={() => setProfileOpen(false)}>Seguridad</Link>
+              <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); logout(); }}>Cerrar sesión</button>
+            </div>}
+          </div>}
         </nav>
       </header>
       <button type="button" className="theme-button" onClick={toggleTheme} aria-label={darkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}>{darkMode ? "☀️" : "🌙"}</button>
