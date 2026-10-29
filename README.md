@@ -28,8 +28,7 @@ No se guardan secretos, credenciales ni contraseñas en este repositorio.
 - Registro y login contra `/api/auth/register` y `/api/auth/login`, con validación en campos y mensajes del backend.
 - Sesión persistente en `localStorage`, logout y navegación diferenciada por visitante, usuario y administrador.
 - Formulario público de contacto conectado al endpoint original de Formspree (`mzebojyd`), con estados de carga, error y confirmación; los usuarios autenticados conservan las interacciones persistidas en el backend.
-- Perfil, configuración de tema y cambio de contraseña mediante rutas autenticadas del backend.
-- Foto de perfil con selección, vista previa, cancelación, eliminación y almacenamiento persistente en Cloudinary cuando el backend está configurado.
+- Perfil, configuración de tema y cambio de contraseña mediante rutas autenticadas del backend. El avatar muestra las iniciales del usuario.
 - Solicitudes autenticadas mediante `POST /api/interactions`; el backend obtiene el usuario desde el JWT y el frontend solo envía `serviceId` y `message`.
 - Historial propio en `GET /api/interactions/mias`.
 - Panel admin protegido para crear, editar y eliminar servicios, con confirmación antes de eliminar.
@@ -45,9 +44,8 @@ src/hooks/             Estado de sesión y hooks de UI
 src/services/         Cliente HTTP y servicios de API
 ```
 
-El backend debe aplicar la migración de perfil y configurar sus variables privadas de
-Cloudinary antes de probar la persistencia de teléfono, contraseña o foto. Esas
-credenciales no se necesitan ni se exponen en este frontend.
+El backend debe aplicar la migración de perfil antes de probar la persistencia de
+teléfono o contraseña.
 
 ## Almacenamiento de sesión
 

@@ -6,7 +6,6 @@ import type { Service } from "@/domain/types";
 import { useAuth } from "@/hooks/use-auth";
 import { ServiceCatalog } from "@/components/ServiceCatalog";
 import { InteractionForm } from "@/components/InteractionForm";
-import { FormspreeContactForm } from "@/components/FormspreeContactForm";
 
 export default function HomePage() {
   const { user, isReady } = useAuth();
@@ -37,7 +36,7 @@ export default function HomePage() {
     </div></section>
     <section id="contacto">
       <div className="section-header"><p className="section-label">SOLICITA TU SERVICIO</p><h2>Cuéntanos qué necesitas.</h2><p>Envíanos los detalles de tu proyecto o equipo y revisaremos tu solicitud.</p></div>
-      {isReady && user ? <InteractionForm services={[]} selectedService={selected} /> : <FormspreeContactForm />}
+      {!isReady ? null : user ? <InteractionForm services={[]} selectedService={selected} /> : <div className="auth-prompt"><p>Para enviar una solicitud debes iniciar sesión.</p><Link href="/login" className="button primary-button">Iniciar sesión</Link></div>}
     </section>
   </main>;
 }

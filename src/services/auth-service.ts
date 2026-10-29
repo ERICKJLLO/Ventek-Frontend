@@ -17,12 +17,4 @@ export const authService = {
   changePassword(data: { currentPassword: string; newPassword: string }) {
     return httpClient.request<null>("/auth/me/password", { method: "PUT", body: data });
   },
-  uploadAvatar(file: File) {
-    const formData = new FormData();
-    formData.set("file", file);
-    return httpClient.requestFormData<User>("/auth/me/avatar", formData);
-  },
-  removeAvatar() {
-    return httpClient.request<User>("/auth/me/avatar", { method: "DELETE" });
-  },
 };

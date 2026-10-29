@@ -57,19 +57,4 @@ describe("HttpClient", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 204 }));
     await expect(httpClient.request("/services/1", { method: "DELETE" })).resolves.toBeNull();
   });
-
-  it("sends multipart form data without overriding its content type", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ id: 1 }), { status: 200 }),
-    );
-    const formData = new FormData();
-    formData.set("file", new File(["image"], "profile.png", { type: "image/png" }));
-    httpClient.setToken("session-token");
-
-    await expect(httpClient.requestFormData<{ id: number }>("/auth/me/avatar", formData)).resolves.toEqual({ id: 1 });
-    const headers = fetchMock.mock.calls[0][1]?.headers as Headers;
-    expect(headers.get("Authorization")).toBe("******");
-    expect(headers.get("Content-Type")).toBeNull();
-    expect(fetchMock.mock.calls[0][1]?.body).toBe(formData);
-  });
 });
