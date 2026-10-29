@@ -3,7 +3,7 @@ import { httpClient } from "./http-client";
 
 export const authService = {
   register(data: { name: string; email: string; password: string }) {
-    return httpClient.request<User>("/auth/register", { method: "POST", body: data });
+    return httpClient.request<User>("/api/auth/register", { method: "POST", body: data });
   },
   login(data: { email: string; password: string }) {
     return httpClient.request<AuthResponse>("/api/auth/login", { method: "POST", body: data });
