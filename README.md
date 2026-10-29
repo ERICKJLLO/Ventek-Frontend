@@ -1,61 +1,114 @@
-# Ventek Frontend — Entrega 3
+# Ventek
 
-Frontend de Ventek construido con Next.js App Router, TypeScript y Tailwind CSS. Consume el backend separado de `Ventek-Backend`; este repositorio no incluye ni modifica el backend.
+Aplicación web para ofrecer servicios de desarrollo web y soporte tecnológico. El proyecto utiliza un frontend desarrollado con Next.js y un backend independiente conectado a una base de datos PostgreSQL.
 
-## Instalación y ejecución
+## Enlaces del proyecto
 
-Requisitos: Node.js 20+ y una instancia del backend ejecutándose.
-
-```bash
-npm install
-Copy-Item .env.example .env.local
-npm run dev
-```
-
-La aplicación se abre en `http://localhost:3001`. El backend debe permitir ese origen mediante `FRONTEND_ORIGIN=http://localhost:3001`. Configura `NEXT_PUBLIC_API_URL` con la URL completa hasta `/api` (por defecto, `http://localhost:3000/api` para el backend local).
-
-## Variables de entorno
-
-| Variable | Descripción |
-| --- | --- |
-| `NEXT_PUBLIC_API_URL` | URL base pública del backend, incluyendo `/api`. |
-
-No se guardan secretos, credenciales ni contraseñas en este repositorio.
+- **Sitio web:** https://ventek-frontend.vercel.app
+- **Repositorio frontend:** https://github.com/ERICKJLLO/Ventek-Frontend
+- **Repositorio backend:** https://github.com/ERICKJLLO/Ventek-Backend
+- **API:** https://ventek-backend.onrender.com
+- **Estado de la API:** https://ventek-backend.onrender.com/healthz
 
 ## Funcionalidades
 
-- Catálogo público cargado desde `GET /api/services`, con paginación, carga, error y estado vacío.
-- Registro y login contra `/api/auth/register` y `/api/auth/login`, con validación en campos y mensajes del backend.
-- Sesión persistente en `localStorage`, logout y navegación diferenciada por visitante, usuario y administrador.
-- Formulario público de contacto conectado al endpoint original de Formspree (`mzebojyd`), con estados de carga, error y confirmación; los usuarios autenticados conservan las interacciones persistidas en el backend.
-- Perfil, configuración de tema y cambio de contraseña mediante rutas autenticadas del backend. El avatar muestra las iniciales del usuario.
-- Solicitudes autenticadas mediante `POST /api/interactions`; el backend obtiene el usuario desde el JWT y el frontend solo envía `serviceId` y `message`.
-- Historial propio en `GET /api/interactions/mias`.
-- Panel admin protegido para crear, editar y eliminar servicios, con confirmación antes de eliminar.
-- Cliente HTTP centralizado: componentes no llaman `fetch` directamente. Las respuestas 401/403 se muestran como errores de API y las páginas privadas redirigen según el rol.
+- Registro e inicio de sesión de usuarios.
+- Autenticación mediante tokens.
+- Consulta del perfil y actualización de los datos del usuario.
+- Cambio de contraseña.
+- Catálogo de servicios de desarrollo web y soporte tecnológico.
+- Gestión de usuarios según el rol asignado, de acuerdo con las funcionalidades implementadas.
+- Formulario de contacto para solicitar servicios.
 
-## Estructura
+## Catálogo de servicios
 
-```text
-app/                  Rutas y layout del App Router
-src/components/       Componentes visuales reutilizables
-src/domain/           Tipos y validación de dominio
-src/hooks/             Estado de sesión y hooks de UI
-src/services/         Cliente HTTP y servicios de API
-```
+### Desarrollo web
+- Página web para negocio.
+- Landing page.
+- Portafolio digital.
+- Aplicación web.
 
-El backend debe aplicar la migración de perfil antes de probar la persistencia de
-teléfono o contraseña.
+### Soporte tecnológico
+- Mantenimiento de PC.
+- Mantenimiento de laptop.
+- Mantenimiento de consola.
+- Cambio de pasta térmica.
+- Optimización de equipos.
 
-## Almacenamiento de sesión
+## Credenciales para la evaluación
 
-La entrega usa `localStorage` para conservar el JWT entre recargas y pestañas. Es una solución práctica para este frontend, pero un token en `localStorage` queda expuesto si existiera una vulnerabilidad XSS. En una aplicación productiva se recomienda migrar a cookies `HttpOnly`, `Secure`, `SameSite` gestionadas por un servidor o BFF, junto con protección CSRF. El frontend no decodifica ni confía en el rol para autorizar operaciones: el backend sigue siendo la autoridad y puede devolver 401/403.
+Estas cuentas se destinan exclusivamente a la demostración académica.
 
-## Validación
+### Administrador
+- **Nombre:** admin
+- **Correo:** admin1@admin.com
+- **Contraseña:** Admin123
+### Usuario normal
+- **Nombre:** usuario
+- **Correo:** usuario1@user.com
+- **Contraseña:** Usuario123
+## Tecnologías utilizadas
 
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-```
+### Frontend
+- Next.js
+- React
+- TypeScript
+- CSS
+
+### Backend
+- Node.js
+- Express
+- TypeScript
+- Prisma ORM
+- JSON Web Tokens (JWT)
+- bcrypt
+
+### Base de datos y despliegue
+- PostgreSQL
+- Supabase
+- Render
+- Vercel
+
+## API
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| GET | `/healthz` | Comprueba el estado del servidor. |
+| POST | `/api/auth/register` | Registra un usuario normal. |
+| POST | `/api/auth/login` | Inicia sesión. |
+| GET | `/api/auth/me` | Consulta el usuario autenticado. |
+| PUT | `/api/auth/me` | Actualiza el perfil del usuario. |
+| PUT | `/api/auth/me/password` | Cambia la contraseña. |
+| GET | `/api/services` | Consulta el catálogo de servicios. |
+
+## Ejecución local del frontend
+
+Se necesita Node.js y npm instalados.
+
+1. Clonar el repositorio:
+
+   ```bash
+   git clone https://github.com/ERICKJLLO/Ventek-Frontend.git
+   cd Ventek-Frontend
+   ```
+
+2. Instalar las dependencias:
+
+   ```bash
+   npm install
+   ```
+
+3. Crear un archivo `.env.local` en la raíz del proyecto con la URL del backend:
+
+   ```env
+   NEXT_PUBLIC_API_URL=https://ventek-backend.onrender.com/api
+   ```
+
+4. Iniciar el servidor de desarrollo:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Abrir `http://localhost:3000` en el navegador.
+
