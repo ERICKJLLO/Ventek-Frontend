@@ -6,7 +6,7 @@ export const authService = {
     return httpClient.request<User>("/auth/register", { method: "POST", body: data });
   },
   login(data: { email: string; password: string }) {
-    return httpClient.request<AuthResponse>("/auth/login", { method: "POST", body: data });
+    return httpClient.request<AuthResponse>("/api/auth/login", { method: "POST", body: data });
   },
   me() {
     return httpClient.request<User>("/auth/me");
